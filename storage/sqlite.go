@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/ignoxx/podara/poc3/types"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 type SqliteStorage struct {
@@ -13,7 +13,7 @@ type SqliteStorage struct {
 }
 
 func NewSqliteStorage(file string) *SqliteStorage {
-	db, err := sql.Open("sqlite3", file)
+	db, err := sql.Open("sqlite", file)
 
 	if err != nil {
 		panic(err)

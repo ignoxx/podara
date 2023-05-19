@@ -2,11 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"log"
 
 	"github.com/ignoxx/podara/poc3/api"
 	"github.com/ignoxx/podara/poc3/storage"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -16,6 +15,11 @@ func main() {
 
 	store := storage.NewSqliteStorage(*dbFile)
 	server := api.NewServer(*listenAddr, store)
-	fmt.Println("Server started on port", *listenAddr)
+
+	log.WithFields(log.Fields{
+		"listenAddr": *listenAddr,
+		"dbFile":     *dbFile,
+	}).Info("Starting server")
+
 	log.Fatal(server.Start())
 }

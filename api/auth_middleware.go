@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ignoxx/podara/poc3/types"
+	log "github.com/sirupsen/logrus"
 )
 
 type UserClaims struct {
@@ -22,12 +23,24 @@ func withAuth(f http.HandlerFunc) http.HandlerFunc {
 		token, err := validateJWT(receivedToken)
 
 		if err != nil {
-			WriteJSON(w, http.StatusUnauthorized, ApiError{Error: "unauthorized"})
+			log.WithFields(log.Fields{
+				"method": r.Method,
+				"path":   r.URL.Path,
+				"addr":   r.RemoteAddr,
+			}).Errorf("%s", err.Error())
+
+			WriteJSON(w, http.StatusUnauthorized, fmt.Errorf("unauthorized"))
 			return
 		}
 
 		if !token.Valid {
-			WriteJSON(w, http.StatusUnauthorized, ApiError{Error: "unauthorized"})
+			log.WithFields(log.Fields{
+				"method": r.Method,
+				"path":   r.URL.Path,
+				"addr":   r.RemoteAddr,
+			}).Errorf("%s", err.Error())
+
+			WriteJSON(w, http.StatusUnauthorized, fmt.Errorf("unauthorized"))
 			return
 		}
 
