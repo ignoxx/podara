@@ -1,12 +1,9 @@
 package types
 
 type User struct {
-	ID       string `json:"id"`
+	Id       string `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"-"`
 }
 
-func ValidateUser(u *User) bool {
-	return true
-}

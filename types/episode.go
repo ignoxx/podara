@@ -1,11 +1,13 @@
 package types
 
-type Podcast struct {
+type Episode struct {
 	Id            string `json:"id"`
 	Title         string `json:"title"`
 	Description   string `json:"description"`
-	UserId        string `json:"user_id"`
+	PodcastId     string `json:"podcast_id"`
 	CoverImageUrl string `json:"cover_image_url"`
+    AudioUrl      string `json:"audio_url"`
+    DurationMs    int    `json:"duration_ms"`
 	CreatedAt     string `json:"created_at"`
 	UpdatedAt     string `json:"updated_at"`
 }
