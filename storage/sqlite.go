@@ -52,6 +52,16 @@ func NewSqliteStorage(file string) *SqliteStorage {
         );
     `)
 
+    if err != nil {
+        panic(err)
+    }
+
+    _, err = db.Exec("PRAGMA journal_mode=WAL")
+
+    if err != nil {
+        panic(err)
+    }
+
 	return &SqliteStorage{
 		db: db,
 	}
