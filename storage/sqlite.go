@@ -261,3 +261,22 @@ func (s *SqliteStorage) DeleteEpisode(podcastId, episodeId string) error {
 
 	return nil
 }
+
+func (s *SqliteStorage) GetPodcastAndEpisodesByPodcastID(podcastId string) (*types.Podcast, []*types.Episode, error) {
+	var p *types.Podcast
+	var episodes []*types.Episode
+
+    p, err := s.GetPodcastByID(podcastId)
+
+    if err != nil {
+        return nil, nil, err
+    }
+
+    episodes, err = s.GetAllEpisodes(podcastId)
+
+    if err != nil {
+        return nil, nil, err
+    }
+
+    return p, episodes, nil
+}

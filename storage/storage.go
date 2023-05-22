@@ -17,4 +17,6 @@ type Storage interface {
 	GetEpisodeByID(podcastId, episodeId string) (*types.Episode, error)
 	UpdateEpisode(podcastId string, e *types.Episode) (*types.Episode, error)
     DeleteEpisode(podcastId, episodeId string) error
+
+    GetPodcastAndEpisodesByPodcastID(podcastId string) (*types.Podcast, []*types.Episode, error)
 }

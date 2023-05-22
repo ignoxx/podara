@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"net/http"
 	"time"
 
@@ -12,9 +13,6 @@ type apiFunc func(http.ResponseWriter, *http.Request) error
 
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-        // r.Header.Set("Content-Type", "application/json")
-        r.Header.Set("Access-Control-Allow-Origin", "*")
-
 		start := time.Now()
 
 		err := f(w, r)
@@ -44,4 +42,10 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(v)
+}
+
+func WriteXML(w http.ResponseWriter, status int, v any) error {
+    w.Header().Add("Content-Type", "application/xml")
+    w.WriteHeader(status)
+    return xml.NewEncoder(w).Encode(v)
 }

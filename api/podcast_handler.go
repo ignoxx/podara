@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
+	rss "github.com/eduncan911/podcast"
 	"github.com/gorilla/mux"
 	"github.com/ignoxx/podara/poc3/types"
 )
@@ -134,7 +136,7 @@ func (s *Server) handleDeletePodcast(w http.ResponseWriter, r *http.Request) err
 
 func (s *Server) handleGetPodcastRss(w http.ResponseWriter, r *http.Request) error {
 	podcastId := mux.Vars(r)["podcast_id"]
-	podcast, err := s.store.GetPodcastByID(podcastId)
+	podcast, episodes, err := s.store.GetPodcastAndEpisodesByPodcastID(podcastId)
 
 	if err != nil {
 		return err
@@ -142,5 +144,26 @@ func (s *Server) handleGetPodcastRss(w http.ResponseWriter, r *http.Request) err
 
 	// TODO: generate rss feed
 
-	return WriteJSON(w, http.StatusOK, podcast)
+	feed := rss.New(podcast.Title, "http://example.com", podcast.Description, SqliteDatetimeToRssDatetime(&podcast.CreatedAt), SqliteDatetimeToRssDatetime(&podcast.UpdatedAt))
+
+	for _, episode := range episodes {
+		feed.AddItem(rss.Item{
+			Title:       episode.Title,
+			Description: episode.Description,
+			Link:        "http://example.com/" + episode.AudioUrl,
+			PubDate:     SqliteDatetimeToRssDatetime(&episode.CreatedAt),
+		})
+	}
+
+	return WriteXML(w, http.StatusOK, feed)
+}
+
+func SqliteDatetimeToRssDatetime(datetime *string) *time.Time {
+	t, err := time.Parse("2006-01-02 15:04:05", *datetime)
+
+	if err != nil {
+		return nil
+	}
+
+	return &t
 }
