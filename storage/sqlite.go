@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/ignoxx/podara/poc3/types"
+	"golang.org/x/crypto/bcrypt"
 	_ "modernc.org/sqlite"
 )
 
@@ -80,9 +81,17 @@ func (s *SqliteStorage) CreateUser(email, name, password string) (*types.User, e
 	user.Id = uuid.NewString()
 	user.Email = email
 	user.Name = name
-	user.Password = password
 
-	_, err := s.db.Exec(`
+	// hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	if err != nil {
+		return nil, err
+	}
+
+	user.Password = string(hashedPassword)
+
+	_, err = s.db.Exec(`
         INSERT INTO users (id, email, password) VALUES (?, ?, ?)
     `, user.Id, user.Email, user.Password)
 
@@ -97,7 +106,7 @@ func (s *SqliteStorage) CreatePodcast(p *types.Podcast) (*types.Podcast, error) 
 	p.Id = uuid.NewString()
 
 	_, err := s.db.Exec(`
-        INSERT INTO podcasts (id, title, description, cover_url, user_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO podcasts (id, title, description, cover_url, user_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     `, p.Id, p.Title, p.Description, p.CoverImageUrl, p.UserId, p.CreatedAt, p.UpdatedAt)
 
 	if err != nil {
@@ -151,7 +160,7 @@ func (s *SqliteStorage) GetPodcastByID(podcast_id string) (*types.Podcast, error
 
 func (s *SqliteStorage) UpdatePodcast(p *types.Podcast) (*types.Podcast, error) {
 	_, err := s.db.Exec(`
-        UPDATE podcasts SET title = ?, description = ?, cover_url = ?, updated_at = ? WHERE id = ?
+        UPDATE podcasts SET title = ?, description = ?, cover_url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
     `, p.Title, p.Description, p.CoverImageUrl, p.UpdatedAt, p.Id)
 
 	if err != nil {
@@ -177,7 +186,7 @@ func (s *SqliteStorage) CreateEpisode(e *types.Episode) (*types.Episode, error) 
 	e.Id = uuid.NewString()
 
 	_, err := s.db.Exec(`
-        INSERT INTO episodes (id, title, description, podcast_id, cover_url, audio_url, duration_ms, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO episodes (id, title, description, podcast_id, cover_url, audio_url, duration_ms, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     `, e.Id, e.Title, e.Description, e.PodcastId, e.CoverImageUrl, e.AudioUrl, e.DurationMs, e.CreatedAt, e.UpdatedAt)
 
 	if err != nil {
@@ -231,7 +240,7 @@ func (s *SqliteStorage) GetEpisodeByID(podcastId, episodeId string) (*types.Epis
 
 func (s *SqliteStorage) UpdateEpisode(podcastId string, e *types.Episode) (*types.Episode, error) {
 	_, err := s.db.Exec(`
-        UPDATE episodes SET title = ?, description = ?, cover_url = ?, audio_url = ?, duration_ms = ?, updated_at = ? WHERE podcast_id = ? AND id = ?
+        UPDATE episodes SET title = ?, description = ?, cover_url = ?, audio_url = ?, duration_ms = ?, updated_at = CURRENT_TIMESTAMP WHERE podcast_id = ? AND id = ?
     `, e.Title, e.Description, e.CoverImageUrl, e.AudioUrl, e.DurationMs, e.UpdatedAt, podcastId, e.Id)
 
 	if err != nil {

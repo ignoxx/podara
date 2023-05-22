@@ -97,5 +97,5 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Add("Authorization", signedToken)
 
-	return WriteJSON(w, http.StatusOK, user)
+	return WriteJSON(w, http.StatusOK, map[string]string{})
 }

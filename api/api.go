@@ -12,6 +12,9 @@ type apiFunc func(http.ResponseWriter, *http.Request) error
 
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+        // r.Header.Set("Content-Type", "application/json")
+        r.Header.Set("Access-Control-Allow-Origin", "*")
+
 		start := time.Now()
 
 		err := f(w, r)

@@ -6,6 +6,6 @@ type Podcast struct {
 	Description   string `json:"description"`
 	UserId        string `json:"user_id"`
 	CoverImageUrl string `json:"cover_image_url"`
-	CreatedAt     string `json:"created_at"`
-	UpdatedAt     string `json:"updated_at"`
+	CreatedAt     string `json:"created_at,omitempty"`
+	UpdatedAt     string `json:"updated_at,omitempty"`
 }
