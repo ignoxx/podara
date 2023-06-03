@@ -27,6 +27,8 @@ func NewServer(listenAddr string, store storage.Storage, imageDir, audioDir stri
 func (s *Server) Start() error {
 	router := mux.NewRouter()
 
+	router.HandleFunc("/{v}", s.handleLandingPage)
+
 	v1 := router.PathPrefix("/api/v1").Subrouter()
 
 	v1.HandleFunc("/register", makeHTTPHandleFunc(s.handleCreateUser)).Methods("POST")
@@ -48,4 +50,8 @@ func (s *Server) Start() error {
 	handler := cors.AllowAll().Handler(router)
 
 	return http.ListenAndServe(s.listenAddr, handler)
+}
+
+func (s *Server) handleLandingPage(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "templates/index.html")
 }

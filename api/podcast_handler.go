@@ -142,8 +142,6 @@ func (s *Server) handleGetPodcastRss(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	// TODO: generate rss feed
-
 	feed := rss.New(podcast.Title, "http://example.com", podcast.Description, SqliteDatetimeToRssDatetime(&podcast.CreatedAt), SqliteDatetimeToRssDatetime(&podcast.UpdatedAt))
 
 	for _, episode := range episodes {
