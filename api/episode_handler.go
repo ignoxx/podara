@@ -90,6 +90,18 @@ func (s *Server) handleCreateEpisode(w http.ResponseWriter, r *http.Request) err
 	return WriteJSON(w, http.StatusOK, episode)
 }
 
+func (s *Server) handleGetEpisodes(w http.ResponseWriter, r *http.Request) error {
+	podcastId := mux.Vars(r)["podcast_id"]
+
+	episodes, err := s.store.GetAllEpisodes(podcastId)
+
+	if err != nil {
+		return err
+	}
+
+	return WriteJSON(w, http.StatusOK, episodes)
+}
+
 func (s *Server) handleGetEpisode(w http.ResponseWriter, r *http.Request) error {
 	episodeId := mux.Vars(r)["episode_id"]
 	podcastId := mux.Vars(r)["podcast_id"]

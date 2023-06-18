@@ -8,11 +8,12 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
-	rss "github.com/eduncan911/podcast"
 	"github.com/gorilla/mux"
+	rss "github.com/ignoxx/podara/poc3/pkg/podcast"
 	"github.com/ignoxx/podara/poc3/types"
 )
 
@@ -142,22 +143,54 @@ func (s *Server) handleGetPodcastRss(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	feed := rss.New(podcast.Title, "http://example.com", podcast.Description, SqliteDatetimeToRssDatetime(&podcast.CreatedAt), SqliteDatetimeToRssDatetime(&podcast.UpdatedAt))
+	domain := "http://ec2-18-157-73-46.eu-central-1.compute.amazonaws.com"
+
+	feed := rss.New(
+		podcast.Title,
+		domain,
+		podcast.Description,
+		SqliteDatetimeToRssDatetime(&podcast.CreatedAt),
+		SqliteDatetimeToRssDatetime(&podcast.UpdatedAt),
+	)
+
+	feed.Generator = "Podara v1.0"
+	feed.IExplicit = "no"
+	feed.AddAuthor("John Doe", "example@mail.com")
+	feed.AddAtomLink(domain + "/api/v1/podcast/" + podcastId + "/rss.xml")
+	feed.AddImage(domain + "/" + podcast.CoverImageUrl)
+	feed.AddSummary("This is the podcast description")
+	feed.AddCategory("Technology", []string{})
+	feed.Copyright = "podara copyright"
 
 	for _, episode := range episodes {
-		feed.AddItem(rss.Item{
+		e := rss.Item{
 			Title:       episode.Title,
 			Description: episode.Description,
-			Link:        "http://example.com/" + episode.AudioUrl,
+			Link:        domain + "/" + episode.AudioUrl,
 			PubDate:     SqliteDatetimeToRssDatetime(&episode.CreatedAt),
-		})
+		}
+
+		e.AddImage(domain + "/" + episode.CoverImageUrl)
+		e.AddSummary("This is the episode description")
+		e.AddEnclosure(domain+"/"+episode.AudioUrl, rss.MP3, 100)
+		e.AddDuration(60)
+
+		if _, err := feed.AddItem(e); err != nil {
+			fmt.Println(e.Title, ": ", err)
+			return err
+		}
 	}
 
-	return WriteXML(w, http.StatusOK, feed)
+	w.Header().Set("Last-Modified", SqliteDatetimeToRssDatetime(&podcast.UpdatedAt).Format(time.RFC1123))
+	// add eTag header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+	w.Header().Set("ETag", "123456789")
+	w.Header().Set("Content-Length", strconv.Itoa(len(feed.String())))
+
+	return feed.Encode(w)
 }
 
 func SqliteDatetimeToRssDatetime(datetime *string) *time.Time {
-	t, err := time.Parse("2006-01-02 15:04:05", *datetime)
+	t, err := time.Parse("2006-01-02T15:04:05Z", *datetime)
 
 	if err != nil {
 		return nil

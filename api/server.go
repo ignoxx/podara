@@ -27,7 +27,9 @@ func NewServer(listenAddr string, store storage.Storage, imageDir, audioDir stri
 func (s *Server) Start() error {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/{v}", s.handleLandingPage)
+	router.HandleFunc("/", s.handleLandingPage)
+	router.HandleFunc("/login", s.handleLoginPage)
+	router.HandleFunc("/register", s.handleRegisterPage)
 
 	v1 := router.PathPrefix("/api/v1").Subrouter()
 
@@ -40,9 +42,10 @@ func (s *Server) Start() error {
 	v1.HandleFunc("/podcast/{podcast_id}", withAuth(makeHTTPHandleFunc(s.handleUpdatePodcast))).Methods("PUT")
 	v1.HandleFunc("/podcast/{podcast_id}", withAuth(makeHTTPHandleFunc(s.handleDeletePodcast))).Methods("DELETE")
 
-	v1.HandleFunc("/podcast/{podcast_id}/rss.xml", makeHTTPHandleFunc(s.handleGetPodcastRss)).Methods("GET")
+	v1.HandleFunc("/podcast/{podcast_id}/rss.xml", makeHTTPHandleFunc(s.handleGetPodcastRss)).Methods("GET", "HEAD")
 
 	v1.HandleFunc("/podcast/{podcast_id}/episode", withAuth(makeHTTPHandleFunc(s.handleCreateEpisode))).Methods("POST")
+	v1.HandleFunc("/podcast/{podcast_id}/episodes", withAuth(makeHTTPHandleFunc(s.handleGetEpisodes))).Methods("GET")
 	v1.HandleFunc("/podcast/{podcast_id}/episode/{episode_id}", withAuth(makeHTTPHandleFunc(s.handleGetEpisode))).Methods("GET")
 	v1.HandleFunc("/podcast/{podcast_id}/episode/{episode_id}", withAuth(makeHTTPHandleFunc(s.handleUpdateEpisode))).Methods("PUT")
 	v1.HandleFunc("/podcast/{podcast_id}/episode/{episode_id}", withAuth(makeHTTPHandleFunc(s.handleDeleteEpisode))).Methods("DELETE")
@@ -54,4 +57,12 @@ func (s *Server) Start() error {
 
 func (s *Server) handleLandingPage(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "templates/index.html")
+}
+
+func (s *Server) handleLoginPage(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "templates/login.html")
+}
+
+func (s *Server) handleRegisterPage(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "templates/register.html")
 }
