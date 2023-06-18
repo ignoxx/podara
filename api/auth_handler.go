@@ -49,6 +49,10 @@ func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) error 
 	}
 
 	w.Header().Add("Authorization", signedToken)
+
+	cookie := http.Cookie{Name: "token", Value: signedToken, HttpOnly: true, SameSite: http.SameSiteStrictMode}
+	http.SetCookie(w, &cookie)
+
 	return WriteJSON(w, http.StatusOK, user)
 }
 
@@ -96,6 +100,9 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	w.Header().Add("Authorization", signedToken)
+
+	cookie := http.Cookie{Name: "token", Value: signedToken, HttpOnly: true, SameSite: http.SameSiteStrictMode}
+	http.SetCookie(w, &cookie)
 
 	return WriteJSON(w, http.StatusOK, map[string]string{})
 }

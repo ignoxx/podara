@@ -20,6 +20,25 @@ type UserClaims struct {
 func withAuth(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		receivedToken := r.Header.Get("Authorization")
+
+		if receivedToken == "" {
+			// get token from cookie
+			cookie, err := r.Cookie("token")
+
+			if err != nil {
+				log.WithFields(log.Fields{
+					"method": r.Method,
+					"path":   r.URL.Path,
+					"addr":   r.RemoteAddr,
+				}).Errorf("%s", err.Error())
+
+				WriteJSON(w, http.StatusUnauthorized, fmt.Errorf("unauthorized"))
+				return
+			}
+
+			receivedToken = cookie.Value
+		}
+
 		token, err := validateJWT(receivedToken)
 
 		if err != nil {
