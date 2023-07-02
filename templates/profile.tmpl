@@ -1,0 +1,14 @@
+{{ define "title"}} Podara - Profile {{end}}
+
+{{ define "main"}}
+
+    {{ if not .User }}
+        <script>
+            window.location.href = "/"
+        </script>
+    {{ else }}
+        <b> HI {{ .User.Email }} </b>
+    {{ end }}
+
+</html>
+{{end}}

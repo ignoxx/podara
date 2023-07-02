@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"text/template"
 
 	"github.com/gorilla/mux"
 	"github.com/ignoxx/podara/poc3/storage"
@@ -30,6 +31,7 @@ func (s *Server) Start() error {
 	router.HandleFunc("/", s.handleLandingPage)
 	router.HandleFunc("/login", s.handleLoginPage)
 	router.HandleFunc("/register", s.handleRegisterPage)
+    router.HandleFunc("/profile", s.handleProfilePage)
 
 	v1 := router.PathPrefix("/api/v1").Subrouter()
 
@@ -56,13 +58,61 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) handleLandingPage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "templates/index.html")
+	files := []string{"templates/base.tmpl", "templates/index.tmpl"}
+	templates := template.Must(template.ParseFiles(files...))
+
+	userClaims, _ := getJwtClaims(r)
+
+	data := struct {
+		User *UserClaims
+	}{User: userClaims}
+
+	if err := templates.ExecuteTemplate(w, "base", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func (s *Server) handleLoginPage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "templates/login.html")
+	files := []string{"templates/base.tmpl", "templates/login.tmpl"}
+	templates := template.Must(template.ParseFiles(files...))
+
+	userClaims, _ := getJwtClaims(r)
+
+	data := struct {
+		User *UserClaims
+	}{User: userClaims}
+
+	if err := templates.ExecuteTemplate(w, "base", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func (s *Server) handleRegisterPage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "templates/register.html")
+	files := []string{"templates/base.tmpl", "templates/register.tmpl"}
+	templates := template.Must(template.ParseFiles(files...))
+
+	userClaims, _ := getJwtClaims(r)
+
+	data := struct {
+		User *UserClaims
+	}{User: userClaims}
+
+	if err := templates.ExecuteTemplate(w, "base", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) handleProfilePage(w http.ResponseWriter, r *http.Request) {
+	files := []string{"templates/base.tmpl", "templates/profile.tmpl"}
+	templates := template.Must(template.ParseFiles(files...))
+
+	userClaims, _ := getJwtClaims(r)
+
+	data := struct {
+		User *UserClaims
+	}{User: userClaims}
+
+	if err := templates.ExecuteTemplate(w, "base", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

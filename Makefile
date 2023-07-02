@@ -1,4 +1,4 @@
-HOST:=ec2-18-157-73-46.eu-central-1.compute.amazonaws.com
+HOST:=ec2-3-68-87-128.eu-central-1.compute.amazonaws.com
 deploy: build-linux
 	@scp -i "~/.ssh/podara.pem" ./bin/main-linux-arm ubuntu@$(HOST):/home/ubuntu
 	@scp -R -i "~/.ssh/podara.pem" ./templates/* ubuntu@$(HOST):/home/ubuntu/templates
@@ -11,3 +11,6 @@ build-linux:
 
 build:
 	@env GOARCH=arm64 GOOS=darwin go build -ldflags="-s -w" -o bin/main-darwin-arm main.go
+
+ssh:
+	@ssh -i "~/.ssh/podara.pem" ubuntu@$(HOST)

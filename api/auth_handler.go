@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -25,7 +26,12 @@ func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) error 
 		Password string `json:"password"`
 	}{}
 
-	err = json.Unmarshal(body, &bodyJson)
+	println("body: ", string(body))
+
+	// url decode body
+	bodyDecoded, err := url.QueryUnescape(string(body))
+
+	err = json.Unmarshal([]byte(bodyDecoded), &bodyJson)
 
 	if err != nil {
 		return err
@@ -50,8 +56,7 @@ func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) error 
 
 	w.Header().Add("Authorization", signedToken)
 
-	cookie := http.Cookie{Name: "token", Value: signedToken, HttpOnly: true, SameSite: http.SameSiteStrictMode}
-	http.SetCookie(w, &cookie)
+	setAuthCookie(w, signedToken)
 
 	return WriteJSON(w, http.StatusOK, user)
 }
@@ -101,8 +106,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Add("Authorization", signedToken)
 
-	cookie := http.Cookie{Name: "token", Value: signedToken, HttpOnly: true, SameSite: http.SameSiteStrictMode}
-	http.SetCookie(w, &cookie)
+	setAuthCookie(w, signedToken)
 
 	return WriteJSON(w, http.StatusOK, map[string]string{})
 }

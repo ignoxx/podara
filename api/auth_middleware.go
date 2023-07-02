@@ -69,6 +69,15 @@ func withAuth(f http.HandlerFunc) http.HandlerFunc {
 
 func getJwtClaims(r *http.Request) (*UserClaims, error) {
 	receivedToken := r.Header.Get("Authorization")
+	if receivedToken == "" {
+		// get token from Cookie
+		cookie, err := r.Cookie("token")
+		if err != nil {
+			return nil, err
+		}
+		receivedToken = cookie.Value
+	}
+
 	token, err := validateJWT(receivedToken)
 
 	if err != nil {
@@ -112,4 +121,15 @@ func validateJWT(tokenString string) (*jwt.Token, error) {
 
 		return []byte(jwtSecretKey), nil
 	})
+}
+
+func setAuthCookie(w http.ResponseWriter, token string) {
+	cookie := http.Cookie{
+		Value:    token,
+		Name:     "token",
+		HttpOnly: true,
+		Path:     "/",
+		SameSite: http.SameSiteStrictMode,
+	}
+	http.SetCookie(w, &cookie)
 }
