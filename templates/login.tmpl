@@ -1,17 +1,10 @@
 {{ define "title"}} Podara - Login {{end}}
 
 {{ define "main"}}
-
-    {{ if .User }}
-        <script>
-            window.location.href = "/"
-        </script>
-    {{ else }}
-
     <div class="container mx-auto px-4 py-8 space-y-24">
         <section id="login" class="contact mt-8 text-center">
             <div class="logo">
-                <i class="fas fa-podcast text-green-400 text-4xl mb-6"></i>
+                <i class="fas fa-podcast text-blue-400 text-4xl mb-6"></i>
             </div>
             <form class="max-w-md mx-auto" hx-post="/api/v1/login" hx-ext="json-enc">
                 <div class="flex flex-wrap -mx-2">
@@ -26,7 +19,7 @@
                 </div>
                 <div class="mt-6 text-center">
                     <button type="submit"
-                        class="bg-green-400 hover:bg-opacity-80 text-white font-bold py-2 px-6 rounded-full cta-btn">Login</button>
+                        class="bg-blue-400 hover:bg-opacity-80 text-white font-bold py-2 px-6 rounded-full cta-btn">Login</button>
                 </div>
             </form>
         </section>
@@ -34,5 +27,3 @@
     </div>
 {{ end }}
 
-</html>
-{{end}}

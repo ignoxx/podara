@@ -52,15 +52,15 @@ func NewSqliteStorage(file string) *SqliteStorage {
         );
     `)
 
-    if err != nil {
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 
-    _, err = db.Exec("PRAGMA journal_mode=WAL")
+	_, err = db.Exec("PRAGMA journal_mode=WAL")
 
-    if err != nil {
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 
 	return &SqliteStorage{
 		db: db,
@@ -130,6 +130,34 @@ func (s *SqliteStorage) GetAllPodcasts() ([]*types.Podcast, error) {
 	rows, err := s.db.Query(`
         SELECT id, title, description, cover_url, user_id, created_at, updated_at FROM podcasts
     `)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var podcasts []*types.Podcast
+
+	for rows.Next() {
+		var p types.Podcast
+
+		err := rows.Scan(&p.Id, &p.Title, &p.Description, &p.CoverImageUrl, &p.UserId, &p.CreatedAt, &p.UpdatedAt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		podcasts = append(podcasts, &p)
+	}
+
+	return podcasts, nil
+}
+
+func (s *SqliteStorage) GetPodcastByUserID(user_id string) ([]*types.Podcast, error) {
+	rows, err := s.db.Query(`
+        SELECT id, title, description, cover_url, user_id, created_at, updated_at FROM podcasts WHERE user_id = ?
+    `, user_id)
 
 	if err != nil {
 		return nil, err
@@ -276,17 +304,17 @@ func (s *SqliteStorage) GetPodcastAndEpisodesByPodcastID(podcastId string) (*typ
 	var p *types.Podcast
 	var episodes []*types.Episode
 
-    p, err := s.GetPodcastByID(podcastId)
+	p, err := s.GetPodcastByID(podcastId)
 
-    if err != nil {
-        return nil, nil, err
-    }
+	if err != nil {
+		return nil, nil, err
+	}
 
-    episodes, err = s.GetAllEpisodes(podcastId)
+	episodes, err = s.GetAllEpisodes(podcastId)
 
-    if err != nil {
-        return nil, nil, err
-    }
+	if err != nil {
+		return nil, nil, err
+	}
 
-    return p, episodes, nil
+	return p, episodes, nil
 }

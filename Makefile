@@ -6,6 +6,9 @@ deploy: build-linux
 run:
 	@env JWT_SECRET_KEY=test123 go run main.go
 
+watch: 
+	@env JWT_SECRET_KEY=test123 air -c .air.toml
+
 build-linux:
 	@env GOARCH=arm64 GOOS=linux go build -ldflags="-s -w" -o bin/main-linux-arm main.go
 

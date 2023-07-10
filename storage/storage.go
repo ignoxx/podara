@@ -9,6 +9,7 @@ type Storage interface {
 	CreatePodcast(p *types.Podcast) (*types.Podcast, error)
 	GetAllPodcasts() ([]*types.Podcast, error)
 	GetPodcastByID(podcastId string) (*types.Podcast, error)
+    GetPodcastByUserID(userId string) ([]*types.Podcast, error)
 	UpdatePodcast(p *types.Podcast) (*types.Podcast, error)
     DeletePodcast(podcastId string) error
 

@@ -55,6 +55,7 @@ func (s *Server) handleCreateUser(w http.ResponseWriter, r *http.Request) error 
 	}
 
 	w.Header().Add("Authorization", signedToken)
+    w.Header().Add("HX-Redirect", "/profile")
 
 	setAuthCookie(w, signedToken)
 
@@ -105,6 +106,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	w.Header().Add("Authorization", signedToken)
+    w.Header().Add("HX-Redirect", "/profile")
 
 	setAuthCookie(w, signedToken)
 
